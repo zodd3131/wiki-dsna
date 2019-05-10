@@ -1,2 +1,2 @@
 # wiki-dsna
-Wiki with a lots of extensiosn and HTTPS support
+Wiki with a lots of extension and HTTPS support
