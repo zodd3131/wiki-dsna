@@ -1,0 +1,75 @@
+# MediaWiki with MariaDB
+
+# ENV VAR that needed to be set for mediawiki 
+# MEDIAWIKI_SITE_NAME= WikiEE
+# MEDIAWIKI_SITE_LANG= fr
+# MEDIAWIKI_ADMIN_USER=admin
+# MEDIAWIKI_ADMIN_PASS=admin1234
+# MEDIAWIKI_DB_TYPE=mysql
+# MEDIAWIKI_DB_SCHEMA=mediawiki
+# MEDIAWIKI_DB_HOST=database
+# MEDIAWIKI_DB_PORT=3306
+# MEDIAWIKI_DB_USER=wikiuser
+# MEDIAWIKI_DB_PASSWORD=example
+# MEDIAWIKI_DB_NAME=wiki
+# MEDIAWIKI_UPDATE=false
+# MEDIAWIKI_SITE_LANG=fr
+# MEDIAWIKI_SITE_SERVER=https://localhost
+# MEDIAWIKI_DOMAIN=localhost
+
+version: '3'
+services:
+  mediawiki:
+    image: wiki:1.0
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      #- ./images:/var/www/html/w/images
+      #prévoir une ligne pour le logo
+      - ./logo_wikiff.png:/var/www/html/w/resources/assets/wiki.png
+      # After initial setup, download LocalSettings.php to the same directory as
+      # this yaml and uncomment the following line and use compose to restart
+      # the mediawiki service
+      - ./ssl/ssl.key:/etc/apache2/ssl.key
+      - ./ssl/ssl.crt:/etc/apache2/ssl.crt
+      - ./ssl/ssl.bundle.crt:/etc/apache2/ssl.bundle.crt
+    environment:
+      - MEDIAWIKI_SITE_NAME= WikiEE
+      - MEDIAWIKI_SITE_LANG= fr
+      - MEDIAWIKI_ADMIN_USER=admin
+      - MEDIAWIKI_ADMIN_PASS=admin1234
+      - MEDIAWIKI_DB_TYPE=mysql
+      - MEDIAWIKI_DB_SCHEMA=mediawiki
+      - MEDIAWIKI_DB_HOST=database
+      - MEDIAWIKI_DB_PORT=3306
+      - MEDIAWIKI_DB_USER=wikiuser
+      - MEDIAWIKI_DB_PASSWORD=example
+      - MEDIAWIKI_DB_NAME=my_wiki
+      - MEDIAWIKI_UPDATE=false
+      - MEDIAWIKI_SITE_LANG=fr
+      - MEDIAWIKI_SITE_SERVER=https://localhost
+      - MEDIAWIKI_DOMAIN=localhost
+
+  database:
+    image: mariadb
+    restart: always
+    volumes:
+      - data-db:/var/lib/mysql
+    environment:
+      # @see https://phabricator.wikimedia.org/source/mediawiki/browse/master/includes/DefaultSettings.php
+      MYSQL_DATABASE: my_wiki
+      MYSQL_USER: wikiuser
+      MYSQL_PASSWORD: example
+      MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
+
+  parsoid:
+    image: thenets/parsoid:0.8
+    restart: always
+    environment:
+      PARSOID_DOMAIN_wiki: http://mediawiki/w/api.php   
+
+## Volume for database      
+volumes:
+  data-db:
