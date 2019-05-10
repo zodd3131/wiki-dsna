@@ -1,0 +1,96 @@
+#!/bin/sh
+set -e
+
+: ${MEDIAWIKI_SITE_NAME:=Wiki-DSNA}
+: ${MEDIAWIKI_SITE_LANG:=fr}
+: ${MEDIAWIKI_ADMIN_USER:=admin}
+: ${MEDIAWIKI_ADMIN_PASS:=admin1234}
+: ${MEDIAWIKI_DB_TYPE:=mysql}
+: ${MEDIAWIKI_DB_SCHEMA:=mediawiki}
+: ${MEDIAWIKI_DB_PORT:=3306}
+: ${MEDIAWIKI_DB_USER:=wikiuser}
+: ${MEDIAWIKI_DB_PASSWORD:=example}
+: ${MEDIAWIKI_DB_NAME:=wiki}
+: ${MEDIAWIKI_ENABLE_SSL:=false}
+: ${MEDIAWIKI_UPDATE:=false}
+
+if [ -z "$MEDIAWIKI_DB_HOST" ]; then	
+    echo >&2 'error: missing MEDIAWIKI_DB_HOST environment variable'
+    echo >&2 '	Did you forget to --link your database?'
+    exit 1
+fi
+
+# Wait for the DB to come up
+while ! mysqladmin ping -h database --silent; do sleep 1; done
+#sleep 1
+
+export MEDIAWIKI_DB_TYPE MEDIAWIKI_DB_HOST MEDIAWIKI_DB_USER MEDIAWIKI_DB_PASSWORD MEDIAWIKI_DB_NAME
+TERM=dumb php -- <<'EOPHP'
+<?php
+// database might not exist, so let's try creating it (just to be safe)
+if ($_ENV['MEDIAWIKI_DB_TYPE'] == 'mysql') {
+	$mysql = new mysqli($_ENV['MEDIAWIKI_DB_HOST'], $_ENV['MEDIAWIKI_DB_USER'], $_ENV['MEDIAWIKI_DB_PASSWORD'], '', (int) $_ENV['MEDIAWIKI_DB_PORT']);
+	if ($mysql->connect_error) {
+		file_put_contents('php://stderr', 'MySQL Connection Error: (' . $mysql->connect_errno . ') ' . $mysql->connect_error . "\n");
+		exit(1);
+	}
+	if (!$mysql->query('CREATE DATABASE IF NOT EXISTS `' . $mysql->real_escape_string($_ENV['MEDIAWIKI_DB_NAME']) . '`')) {
+		file_put_contents('php://stderr', 'MySQL "CREATE DATABASE" Error: ' . $mysql->error . "\n");
+	}
+	$mysql->close();
+}
+EOPHP
+
+: ${MEDIAWIKI_SHARED:=/data}
+if [ ! -d "$MEDIAWIKI_SHARED" ]; then
+    mkdir -p $MEDIAWIKI_SHARED
+fi
+
+cd $MEDIAWIKI_PATH
+# If there is no LocalSettings.php, create one using maintenance/install.php
+if [ ! -e "$MEDIAWIKI_SHARED/installed" -a ! -f "$MEDIAWIKI_SHARED/install.lock" ]; then
+    touch $MEDIAWIKI_SHARED/install.lock
+	php maintenance/install.php \
+		--confpath /var/www/html/w \
+		--dbname "$MEDIAWIKI_DB_NAME" \
+		--dbschema "$MEDIAWIKI_DB_SCHEMA" \
+		--dbport "$MEDIAWIKI_DB_PORT" \
+		--dbserver "$MEDIAWIKI_DB_HOST" \
+		--dbtype "$MEDIAWIKI_DB_TYPE" \
+		--dbuser "$MEDIAWIKI_DB_USER" \
+		--dbpass "$MEDIAWIKI_DB_PASSWORD" \
+		--installdbuser "$MEDIAWIKI_DB_USER" \
+		--installdbpass "$MEDIAWIKI_DB_PASSWORD" \
+		--server "$MEDIAWIKI_SITE_SERVER" \
+		--scriptpath "/w" \
+		--lang "$MEDIAWIKI_SITE_LANG" \
+		--pass "$MEDIAWIKI_ADMIN_PASS" \
+		"$MEDIAWIKI_SITE_NAME" \
+		"$MEDIAWIKI_ADMIN_USER"
+
+    touch $MEDIAWIKI_SHARED/installed
+
+	#Modify LocalSetings accordingly to Dockerfile
+	sed -i 's/$wgLanguageCode = "en"/$wgLanguageCode = "fr"/g' LocalSettings.php
+	sed -i 's/wgEnableUploads = false/wgEnableUploads = true/g' LocalSettings.php
+	#sed -i 's//$wgRightsPage = "'$MEDIAWIKI_SITE_NAME':Copyright"/g' LocalSettings.php
+	#sed -i 's//$wgRightsText = "copyright '$MEDIAWIKI_SITE_NAME'"/g' LocalSettings.php
+	#sed -i 's///g' LocalSettings.php
+	
+    #run update.php as extensions need to create tables
+    php maintenance/update.php --quick
+    rm $MEDIAWIKI_SHARED/install.lock
+fi
+
+# Add Local configuration to generated LocalSettings
+cat <<EOT >> /var/www/html/w/LocalSettings.php
+require_once "LocalSettings.local.php"; 
+require_once "LocalSettings.ext.php"; 
+EOT
+
+# first arg is `-f` or `--some-option`
+if [ "${1#-}" != "$1" ]; then
+    set -- apache2-foreground "$@"
+fi
+
+exec "$@"

@@ -1,0 +1,16 @@
+{
+    "require": {
+        "mediawiki/bootstrap": "^1.2",
+		"mediawiki/semantic-glossary": "^2.2",
+		"mediawiki/maps": "^5.0",
+        "mediawiki/semantic-media-wiki": "^2.5",
+        "mediawiki/semantic-result-formats": "^2.5"
+    },
+    "extra": {
+		"merge-plugin": {
+			"include": [
+				"extensions/SyntaxHighlight_GeSHi/composer.json"
+			]
+		}
+	}
+}
