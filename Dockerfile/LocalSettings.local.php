@@ -1,5 +1,9 @@
 <?php
 
+###################################################
+### PRETTY URL
+###################################################
+
 $actions = array( 'edit', 'watch', 'unwatch', 'delete','revert', 'rollback',
   'protect', 'unprotect', 'markpatrolled', 'render', 'submit', 'history', 'purge', 'info' );
  
@@ -21,6 +25,9 @@ $wgWhitelistRead =  [ ]; #[ "Main Page", "Help:Contents" ];
 
 # Disable anonymous editing
 $wgGroupPermissions['*']['edit'] = false;
+
+# Politique de modification des pages
+$wgGroupPermissions['sysop']['editinterface'] = true;
 
 # Prevent new user registrations except by sysops
 $wgGroupPermissions['*']['createaccount'] = false;
@@ -92,9 +99,9 @@ $wgSessionsInObjectCache = true;
 // that $wgVirtualRestConfig['modules']['parsoid']['url'] be pointed to localhost if this setting is enabled.
 $wgVirtualRestConfig['modules']['parsoid']['forwardCookies'] = true;
 
-################################################################################
-########################## Paramétrage de Maps #################################
-################################################################################
+###################################################
+### MAPS
+###################################################
 $GLOBALS['egMapsAvailableServices'] = [
     # 'googlemaps3', # On supprime complètement GoogleMaps (choix arbitraire)
     'openlayers',
@@ -102,16 +109,16 @@ $GLOBALS['egMapsAvailableServices'] = [
 ];
 $GLOBALS['egMapsDefaultService'] = 'leaflet';
 
-################################################################################
-######################## Paramétrage de ApprovedRevs ###########################
-################################################################################
+###################################################
+### Approved Revs
+###################################################
 
-#$egApprovedRevsShowNotApprovedMessage=true; # Indicating unapproved pages
+$egApprovedRevsShowNotApprovedMessage=true; # Indicating unapproved pages
 #$egApprovedRevsAutomaticApprovals = false; # les pages ne sont plus approuvées automatiquement à chaque modif quand on a les droits
 
-################################################################################
-####################### Paramétrage de Bootstrap ###############################
-################################################################################
+###################################################
+### BOOTSTRAP
+###################################################
 $wgHooks['SetupAfterCache'][]=function(){
 	\Bootstrap\BootstrapManager::getInstance()->addAllBootstrapModules();
 	return true;
@@ -122,14 +129,14 @@ $wgHooks['ParserAfterParse'][]=function( Parser &$parser, &$text, StripState &$s
 	return true;
 };
 
-################################################################################
-########################## Paramétrage de CSS ##################################
-################################################################################
+###################################################
+### CSS
+###################################################
 
 
-################################################################################
-########################## Paramétrage de SMW ##################################
-################################################################################
+###################################################
+### SMW
+###################################################
 
  enableSemantics( $_SERVER["MEDIAWIKI_DOMAIN"] );#enableSemantics( 'https://example.org/id/', true );
  $smwgNamespacesWithSemanticLinks[3000] = true;
@@ -138,9 +145,19 @@ $wgHooks['ParserAfterParse'][]=function( Parser &$parser, &$text, StripState &$s
  $smwgEnabledSpecialPage = array( 'Ask', 'RunQuery' );
 // $smwgEnabledCompatibilityMode = true; # ajout mike
 
-################################################################################
-######################### Paramétrages divers ##################################
-################################################################################
+###################################################
+### Wiki Editor
+###################################################
+# Active l’utilisation de WikiEditor par défaut mais il est encore possible aux utilisateurs de le désactiver dans les préférences
+$wgDefaultUserOptions['usebetatoolbar'] = 1;
+# Active les assistants d’insertion de lien et de tableaux mais il reste encore possible pour les utilisateurs de les désactiver dans les préférences
+$wgDefaultUserOptions['usebetatoolbar-cgd'] = 1;
+# Affiche les onglets Prévisualiser et Voir les changements
+$wgDefaultUserOptions['wikieditor-preview'] = 1;
+
+###################################################
+### MISC
+###################################################
 
 # Tentative de résolution du pb lié à l'attribution de catégorie
 $wgRunJobsAsync = false;
@@ -155,24 +172,10 @@ $wgRawHtml = true;
 # Affichage des numéros de section directement dans les titres et sous-titres
 $wgDefaultUserOptions['numberheadings'] = 1;
 
-# Politique de modification des pages
-//$wgGroupPermissions['*']['edit'] = false;
-//$wgGroupPermissions['sysop']['editinterface'] = true;
-
 //$wgShowExceptionDetails= true;
 //$wgDebugToolbar= true;
 //$wgShowDBErrorBacktrace = true;
 
-
-###################################################################################
-######################### Paramétrage de WikiEditor ############################
-###################################################################################
-# Active l’utilisation de WikiEditor par défaut mais il est encore possible aux utilisateurs de le désactiver dans les préférences
-$wgDefaultUserOptions['usebetatoolbar'] = 1;
-# Active les assistants d’insertion de lien et de tableaux mais il reste encore possible pour les utilisateurs de les désactiver dans les préférences
-$wgDefaultUserOptions['usebetatoolbar-cgd'] = 1;
-# Affiche les onglets Prévisualiser et Voir les changements
-$wgDefaultUserOptions['wikieditor-preview'] = 1;
 
 #########################
 # Extensions disponibles
