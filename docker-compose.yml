@@ -20,10 +20,9 @@
 version: '3'
 services:
   mediawiki:
-    image: wiki:1.0
+    image: zodd31/wiki-dsna:1.2
     restart: always
     ports:
-      - 80:80
       - 443:443
     volumes:
       #- ./images:/var/www/html/w/images
@@ -35,6 +34,7 @@ services:
       - ./ssl/ssl.key:/etc/apache2/ssl.key
       - ./ssl/ssl.crt:/etc/apache2/ssl.crt
       - ./ssl/ssl.bundle.crt:/etc/apache2/ssl.bundle.crt
+      #- ./Dockerfile/wiki.conf:/etc/apache2/sites-available/wiki.conf
     environment:
       - MEDIAWIKI_SITE_NAME= WikiEE
       - MEDIAWIKI_SITE_LANG= fr
@@ -70,6 +70,6 @@ services:
     environment:
       PARSOID_DOMAIN_wiki: http://mediawiki/w/api.php   
 
-## Volume for database      
+# Volume for database      
 volumes:
   data-db:

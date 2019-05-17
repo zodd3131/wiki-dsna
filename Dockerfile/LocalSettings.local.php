@@ -33,30 +33,9 @@ $wgGroupPermissions['sysop']['editinterface'] = true;
 $wgGroupPermissions['*']['createaccount'] = false;
 
 ###################################################
-### Add custom namespaces
-###################################################
-
-// Define constants for my additional namespaces.
-define("NS_HOW_TO_WIKI", 3000); // This MUST be even.
-define("NS_HOW_TO_WIKI_TALK", 3001); // This MUST be the following odd integer.
-
-// Add namespaces.
-$wgExtraNamespaces[NS_HOW_TO_WIKI] = "HowToWiki";
-$wgExtraNamespaces[NS_HOW_TO_WIKI_TALK] = "HowToWiki_Talk"; // Note underscores in the namespace name.
-
-###################################################
 ### Scribunto
 ###################################################
 $wgScribuntoDefaultEngine = 'luastandalone';
-
-###################################################
-### Cite This Page
-###################################################
-
-
-###################################################
-### Collection
-###################################################
 
 ###################################################
 ### Visual Editor
@@ -128,11 +107,6 @@ $wgHooks['ParserAfterParse'][]=function( Parser &$parser, &$text, StripState &$s
 	$parser->getOutput()->addModuleScripts( 'ext.bootstrap.scripts' );
 	return true;
 };
-
-###################################################
-### CSS
-###################################################
-
 
 ###################################################
 ### SMW
