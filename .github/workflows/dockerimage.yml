@@ -29,4 +29,4 @@ jobs:
           # Automatically tags the built image with the git reference as per the readme
           tag_with_ref: true # optional
           # Path to the build context
-          path: Dockerfile/ # optional, default is .
+          path: ./Dockerfile # optional, default is .
