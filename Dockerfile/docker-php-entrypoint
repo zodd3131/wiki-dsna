@@ -24,23 +24,6 @@ fi
 while ! mysqladmin ping -h database --silent; do sleep 1; done
 #sleep 1
 
-export MEDIAWIKI_DB_TYPE MEDIAWIKI_DB_HOST MEDIAWIKI_DB_USER MEDIAWIKI_DB_PASSWORD MEDIAWIKI_DB_NAME
-TERM=dumb php -- <<'EOPHP'
-<?php
-// database might not exist, so let's try creating it (just to be safe)
-if ($_ENV['MEDIAWIKI_DB_TYPE'] == 'mysql') {
-	$mysql = new mysqli($_ENV['MEDIAWIKI_DB_HOST'], $_ENV['MEDIAWIKI_DB_USER'], $_ENV['MEDIAWIKI_DB_PASSWORD'], '', (int) $_ENV['MEDIAWIKI_DB_PORT']);
-	if ($mysql->connect_error) {
-		file_put_contents('php://stderr', 'MySQL Connection Error: (' . $mysql->connect_errno . ') ' . $mysql->connect_error . "\n");
-		exit(1);
-	}
-	if (!$mysql->query('CREATE DATABASE IF NOT EXISTS `' . $mysql->real_escape_string($_ENV['MEDIAWIKI_DB_NAME']) . '`')) {
-		file_put_contents('php://stderr', 'MySQL "CREATE DATABASE" Error: ' . $mysql->error . "\n");
-	}
-	$mysql->close();
-}
-EOPHP
-
 : ${MEDIAWIKI_SHARED:=/data}
 if [ ! -d "$MEDIAWIKI_SHARED" ]; then
     mkdir -p $MEDIAWIKI_SHARED
@@ -77,16 +60,18 @@ if [ ! -e "$MEDIAWIKI_SHARED/installed" -a ! -f "$MEDIAWIKI_SHARED/install.lock"
 	#sed -i 's//$wgRightsText = "copyright '$MEDIAWIKI_SITE_NAME'"/g' LocalSettings.php
 	#sed -i 's///g' LocalSettings.php
 	
+	# Add Local configuration to generated LocalSettings
+	cat <<EOT >> /var/www/html/w/LocalSettings.php
+	require_once "LocalSettings.local.php"; 
+	require_once "LocalSettings.ext.php";
+EOT
+
     #run update.php as extensions need to create tables
     php maintenance/update.php --quick
     rm $MEDIAWIKI_SHARED/install.lock
 fi
 
-# Add Local configuration to generated LocalSettings
-cat <<EOT >> /var/www/html/w/LocalSettings.php
-require_once "LocalSettings.local.php"; 
-require_once "LocalSettings.ext.php"; 
-EOT
+a2dismod ssl
 
 # first arg is `-f` or `--some-option`
 if [ "${1#-}" != "$1" ]; then

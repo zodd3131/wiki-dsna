@@ -17,26 +17,26 @@
 # MEDIAWIKI_SITE_SERVER=https://localhost
 # MEDIAWIKI_DOMAIN=localhost
 
-version: '3'
+version: '3.2'
 services:
   mediawiki:
     image: zodd31/wiki-dsna:1.2
+    #image: wiki-dsna:test
     restart: always
     ports:
-      - 443:443
+      - 80:80
     volumes:
-      #- ./images:/var/www/html/w/images
+      - ./images:/var/www/html/w/images
       #prévoir une ligne pour le logo
       - ./logo_wikiff.png:/var/www/html/w/resources/assets/wiki.png
-      # After initial setup, download LocalSettings.php to the same directory as
-      # this yaml and uncomment the following line and use compose to restart
-      # the mediawiki service
-      - ./ssl/ssl.key:/etc/apache2/ssl.key
-      - ./ssl/ssl.crt:/etc/apache2/ssl.crt
-      - ./ssl/ssl.bundle.crt:/etc/apache2/ssl.bundle.crt
-      #- ./Dockerfile/wiki.conf:/etc/apache2/sites-available/wiki.conf
+      #Local LocalSettings.php
+      - ./Dockerfile/LocalSettings.local.php:/var/www/html/w/LocalSettings.local.php
+      # new entrypoint
+      - ./Dockerfile/docker-php-entrypoint:/usr/local/bin/docker-php-entrypoint
+      # new site
+      - ./Dockerfile/wiki.conf:/etc/apache2/sites-available/wiki.conf
     environment:
-      - MEDIAWIKI_SITE_NAME= WikiEE
+      - MEDIAWIKI_SITE_NAME= WikiFF
       - MEDIAWIKI_SITE_LANG= fr
       - MEDIAWIKI_ADMIN_USER=admin
       - MEDIAWIKI_ADMIN_PASS=admin1234
@@ -49,11 +49,11 @@ services:
       - MEDIAWIKI_DB_NAME=my_wiki
       - MEDIAWIKI_UPDATE=false
       - MEDIAWIKI_SITE_LANG=fr
-      - MEDIAWIKI_SITE_SERVER=https://localhost
-      - MEDIAWIKI_DOMAIN=localhost
+      - MEDIAWIKI_SITE_SERVER=http://localhost
+      - MEDIAWIKI_DOMAIN=epeires.crnan
 
   database:
-    image: mariadb
+    image: mariadb:10.3.14
     restart: always
     volumes:
       - data-db:/var/lib/mysql
@@ -68,7 +68,7 @@ services:
     image: thenets/parsoid:0.8
     restart: always
     environment:
-      PARSOID_DOMAIN_wiki: http://mediawiki/w/api.php   
+      PARSOID_DOMAIN_wiki: http://mediawiki/w/api.php
 
 # Volume for database      
 volumes:
