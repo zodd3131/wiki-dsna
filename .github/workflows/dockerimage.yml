@@ -30,3 +30,4 @@ jobs:
           tag_with_ref: true # optional
           # Path to the build context
           path: ./Dockerfile # optional, default is .
+          dockerfile: ./Dockerfile/Dockerfile  
