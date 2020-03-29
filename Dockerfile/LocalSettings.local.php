@@ -117,7 +117,7 @@ $wgHooks['ParserAfterParse'][]=function( Parser &$parser, &$text, StripState &$s
  $smwgShowFactbox = SMW_FACTBOX_HIDDEN;
  $smwgUseCategoryHierarchy = true;
  $smwgEnabledSpecialPage = array( 'Ask', 'RunQuery' );
-// $smwgEnabledCompatibilityMode = true; # ajout mike
+// $smwgEnabledCompatibilityMode = true; # ajout mike
 
 ###################################################
 ### Wiki Editor

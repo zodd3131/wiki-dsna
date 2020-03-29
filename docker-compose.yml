@@ -20,21 +20,16 @@
 version: '3.2'
 services:
   mediawiki:
-    image: zodd31/wiki-dsna:1.2
-    #image: wiki-dsna:test
+    #image: zodd31/wiki-dsna:1.2
+    image: wiki-dsna:test31
     restart: always
     ports:
       - 80:80
     volumes:
+      # images folder
       - ./images:/var/www/html/w/images
       #prévoir une ligne pour le logo
       - ./logo_wikiff.png:/var/www/html/w/resources/assets/wiki.png
-      #Local LocalSettings.php
-      - ./Dockerfile/LocalSettings.local.php:/var/www/html/w/LocalSettings.local.php
-      # new entrypoint
-      - ./Dockerfile/docker-php-entrypoint:/usr/local/bin/docker-php-entrypoint
-      # new site
-      - ./Dockerfile/wiki.conf:/etc/apache2/sites-available/wiki.conf
     environment:
       - MEDIAWIKI_SITE_NAME= WikiFF
       - MEDIAWIKI_SITE_LANG= fr
@@ -69,6 +64,11 @@ services:
     restart: always
     environment:
       PARSOID_DOMAIN_wiki: http://mediawiki/w/api.php
+  
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
 
 # Volume for database      
 volumes:
