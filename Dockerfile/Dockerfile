@@ -86,9 +86,12 @@ php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
 php -r "unlink('composer-setup.php');"
 RUN composer install --no-dev
   
+COPY Lato-Regular.ttf ${MEDIAWIKI_PATH}/fonts/Lato/
+
 RUN chown -R www-data: \
 			${MEDIAWIKI_PATH}/extensions ${MEDIAWIKI_PATH}/skins \
-			${MEDIAWIKI_PATH}/cache ${MEDIAWIKI_PATH}/images
+			${MEDIAWIKI_PATH}/cache ${MEDIAWIKI_PATH}/images \
+			${MEDIAWIKI_PATH}/fonts
 
 # docker-php-entrypoint configures db, env variable and LocalSettings.php
 COPY ./docker-php-entrypoint /usr/local/bin/docker-php-entrypoint
