@@ -4,9 +4,6 @@ LABEL maintainer="LFFF"
 ENV MEDIAWIKI_PATH /var/www/html/w
 
 # System Dependencies.
-RUN apt-get update
-RUN apt-cache search mysql
-RUN apt-cache search mariadb
 RUN apt-get update && apt-get install -y \
 	git \
 	imagemagick \
@@ -15,7 +12,8 @@ RUN apt-get update && apt-get install -y \
 	python3 \
 	libpng-dev \
 	unzip \
-	mariadb-client-10.1 \
+	default-mysql-client \
+	mariadb-client-10.3 \
 	--no-install-recommends && rm -r /var/lib/apt/lists/* && rm -rf /var/cache/apt/archives/*
 
 # Install the PHP extensions we need
