@@ -4,6 +4,7 @@ LABEL maintainer="LFFF"
 ENV MEDIAWIKI_PATH /var/www/html/w
 
 # System Dependencies.
+
 RUN apt-get update && apt-get install -y \
 	git \
 	imagemagick \
@@ -12,9 +13,10 @@ RUN apt-get update && apt-get install -y \
 	python3 \
 	libpng-dev \
 	unzip \
-	mysql-client \
+	mariadb-client-10.1 \
 	--no-install-recommends && rm -r /var/lib/apt/lists/* && rm -rf /var/cache/apt/archives/*
-
+RUN apt-cache search mysql
+RUN apt-cache search mariadb
 # Install the PHP extensions we need
 RUN docker-php-ext-install mbstring mysqli opcache intl gd zip
 
@@ -79,7 +81,7 @@ WORKDIR ${MEDIAWIKI_PATH}
 COPY ./composer.local.json ./composer.local.json
 
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
-	php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
+	php composer-setup.php --version=1.10.20 --install-dir=/usr/local/bin --filename=composer && \
 	php -r "unlink('composer-setup.php');"
 RUN composer install --no-dev
 
