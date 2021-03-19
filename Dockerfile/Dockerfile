@@ -5,14 +5,14 @@ ENV MEDIAWIKI_PATH /var/www/html/w
 
 # System Dependencies.
 RUN apt-get update && apt-get install -y \
-		git \
-		imagemagick \
-		libicu-dev \
-		# Required for SyntaxHighlighting
-		python3 \
-        libpng-dev \
-        unzip \
-        mysql-client \
+	git \
+	imagemagick \
+	libicu-dev \
+	# Required for SyntaxHighlighting
+	python3 \
+	libpng-dev \
+	unzip \
+	mysql-client \
 	--no-install-recommends && rm -r /var/lib/apt/lists/* && rm -rf /var/cache/apt/archives/*
 
 # Install the PHP extensions we need
@@ -26,12 +26,12 @@ RUN pecl channel-update pecl.php.net \
 # set recommended PHP.ini settings
 # see https://secure.php.net/manual/en/opcache.installation.php
 RUN { \
-		echo 'opcache.memory_consumption=128'; \
-		echo 'opcache.interned_strings_buffer=8'; \
-		echo 'opcache.max_accelerated_files=4000'; \
-		echo 'opcache.revalidate_freq=60'; \
-		echo 'opcache.fast_shutdown=1'; \
-		echo 'opcache.enable_cli=1'; \
+	echo 'opcache.memory_consumption=128'; \
+	echo 'opcache.interned_strings_buffer=8'; \
+	echo 'opcache.max_accelerated_files=4000'; \
+	echo 'opcache.revalidate_freq=60'; \
+	echo 'opcache.fast_shutdown=1'; \
+	echo 'opcache.enable_cli=1'; \
 	} > /usr/local/etc/php/conf.d/opcache-recommended.ini
 
 # SQLite Directory Setup
@@ -49,7 +49,7 @@ COPY ./wiki.conf /etc/apache2/sites-available/wiki.conf
 
 # MediaWiki setup 
 RUN mkdir -p ${MEDIAWIKI_PATH} && \
-    curl -fSL "https://releases.wikimedia.org/mediawiki/${MEDIAWIKI_MAJOR_VERSION}/mediawiki-${MEDIAWIKI_VERSION}.tar.gz" -o mediawiki.tar.gz \
+	curl -fSL "https://releases.wikimedia.org/mediawiki/${MEDIAWIKI_MAJOR_VERSION}/mediawiki-${MEDIAWIKI_VERSION}.tar.gz" -o mediawiki.tar.gz \
 	&& tar -xz --strip-components=1 -f mediawiki.tar.gz -C ${MEDIAWIKI_PATH} \
 	&& rm mediawiki.tar.gz
 
@@ -57,36 +57,35 @@ RUN mkdir -p ${MEDIAWIKI_PATH} && \
 WORKDIR ${MEDIAWIKI_PATH}/extensions/
 RUN rm -R  SyntaxHighlight_GeSHi
 RUN for X in \
-ApprovedRevs CSS HeaderTabs LabeledSectionTransclusion \
-Loops Variables VisualEditor TitleKey Collection CategoryTree \
-Scribunto MultimediaViewer Arrays SyntaxHighlight_GeSHi ; \
-do \
-git clone --depth 1 -b $MEDIAWIKI_BRANCH \
-https://gerrit.wikimedia.org/r/mediawiki/extensions/$X.git ; \
-done
-    # SimpleMathJax
+	ApprovedRevs CSS HeaderTabs LabeledSectionTransclusion \
+	Loops Variables VisualEditor TitleKey Collection CategoryTree \
+	Scribunto MultimediaViewer Arrays SyntaxHighlight_GeSHi ; \
+	do \
+	git clone --depth 1 -b $MEDIAWIKI_BRANCH \
+	https://gerrit.wikimedia.org/r/mediawiki/extensions/$X.git ; \
+	done
+# SimpleMathJax
 RUN git clone --depth 1 -b master \
- https://github.com/jmnote/SimpleMathJax.git
-    # PDFEmbed
+	https://github.com/jmnote/SimpleMathJax.git
+# PDFEmbed
 RUN git clone --depth 1 -b master \
- https://gitlab.com/hydrawiki/extensions/PDFEmbed.git
-    # Init Submodule 4 VisualEditor
+	https://gitlab.com/hydrawiki/extensions/PDFEmbed.git
+# Init Submodule 4 VisualEditor
 
 RUN cd ${MEDIAWIKI_PATH}/extensions/VisualEditor \
-    && git submodule update --init 
+	&& git submodule update --init 
 
 WORKDIR ${MEDIAWIKI_PATH}
 COPY ./composer.local.json ./composer.local.json
 
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
-php -r "if (hash_file('sha384', 'composer-setup.php') === '48e3236262b34d30969dca3c37281b3b4bbe3221bda826ac6a9a62d6444cdb0dcd0615698a5cbe587c3f0fe57a54d8f5') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" && \
-php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
-php -r "unlink('composer-setup.php');"
+	php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
+	php -r "unlink('composer-setup.php');"
 RUN composer install --no-dev
-  
+
 RUN chown -R www-data: \
-			${MEDIAWIKI_PATH}/extensions ${MEDIAWIKI_PATH}/skins \
-			${MEDIAWIKI_PATH}/cache ${MEDIAWIKI_PATH}/images
+	${MEDIAWIKI_PATH}/extensions ${MEDIAWIKI_PATH}/skins \
+	${MEDIAWIKI_PATH}/cache ${MEDIAWIKI_PATH}/images
 
 # docker-php-entrypoint configures db, env variable and LocalSettings.php
 COPY ./docker-php-entrypoint /usr/local/bin/docker-php-entrypoint

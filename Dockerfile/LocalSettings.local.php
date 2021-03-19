@@ -54,7 +54,8 @@ $wgHiddenPrefs[] = 'visualeditor-enable';
 $wgVirtualRestConfig['modules']['parsoid'] = array(
     // URL to the Parsoid instance
     // Use port 8142 if you use the Debian package
-    //http://parsoid:8000'url' => $_ENV['PARSOID_URL'],
+    //http://parsoid:8000
+    'url' => $_ENV['PARSOID_URL'],
     // Parsoid "domain", see below (optional)
     'domain' => 'wiki',
     // Parsoid "prefix", see below (optional)
