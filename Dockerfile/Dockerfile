@@ -4,7 +4,9 @@ LABEL maintainer="LFFF"
 ENV MEDIAWIKI_PATH /var/www/html/w
 
 # System Dependencies.
-
+RUN apt-get update
+RUN apt-cache search mysql
+RUN apt-cache search mariadb
 RUN apt-get update && apt-get install -y \
 	git \
 	imagemagick \
@@ -15,8 +17,7 @@ RUN apt-get update && apt-get install -y \
 	unzip \
 	mariadb-client-10.1 \
 	--no-install-recommends && rm -r /var/lib/apt/lists/* && rm -rf /var/cache/apt/archives/*
-RUN apt-cache search mysql
-RUN apt-cache search mariadb
+
 # Install the PHP extensions we need
 RUN docker-php-ext-install mbstring mysqli opcache intl gd zip
 
