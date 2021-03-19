@@ -13,7 +13,6 @@ RUN apt-get update && apt-get install -y \
 	libpng-dev \
 	unzip \
 	default-mysql-client \
-	mariadb-client-10.3 \
 	--no-install-recommends && rm -r /var/lib/apt/lists/* && rm -rf /var/cache/apt/archives/*
 
 # Install the PHP extensions we need
