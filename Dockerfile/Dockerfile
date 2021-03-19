@@ -100,6 +100,9 @@ COPY ./LocalSettings.ext.php ${MEDIAWIKI_PATH}/LocalSettings.ext.php
 # apache configuration for mediawiki
 COPY ./wiki.conf /etc/apache2/sites-available/wiki.conf
 
+# Copy fonts
+COPY ./Lato-Regular.ttf /fonts/Lato/Lato-Regular.ttf
+
 # Disable default site
 RUN a2dissite 000-default
 
