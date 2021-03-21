@@ -15,6 +15,8 @@ RUN apt-get update && apt-get install -y \
 	default-mysql-client \
 	--no-install-recommends && rm -r /var/lib/apt/lists/* && rm -rf /var/cache/apt/archives/*
 
+#RUN apt autoremove sensible-utils
+
 # Install the PHP extensions we need
 RUN docker-php-ext-install mbstring mysqli opcache intl gd zip
 
@@ -39,9 +41,9 @@ RUN mkdir -p /var/www/data \
 	&& chown -R www-data:www-data /var/www/data
 
 # Version
-ENV MEDIAWIKI_MAJOR_VERSION 1.30
-ENV MEDIAWIKI_BRANCH REL1_30
-ENV MEDIAWIKI_VERSION 1.30.1
+ENV MEDIAWIKI_MAJOR_VERSION 1.31
+ENV MEDIAWIKI_BRANCH REL1_31
+ENV MEDIAWIKI_VERSION 1.31.7
 ENV MEDIAWIKI_SHA512 ee49649cc37d0a7d45a7c6d90c822c2a595df290be2b5bf085affbec3318768700a458a6e5b5b7e437651400b9641424429d6d304f870c22ec63fae86ffc5152
 
 #COPY APACHE SITE 4 wiki
@@ -83,9 +85,12 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" &&
 	php -r "unlink('composer-setup.php');"
 RUN composer install --no-dev
 
+COPY Lato-Regular.ttf ${MEDIAWIKI_PATH}/fonts/Lato/
+
 RUN chown -R www-data: \
 	${MEDIAWIKI_PATH}/extensions ${MEDIAWIKI_PATH}/skins \
-	${MEDIAWIKI_PATH}/cache ${MEDIAWIKI_PATH}/images
+	${MEDIAWIKI_PATH}/cache ${MEDIAWIKI_PATH}/images \
+	${MEDIAWIKI_PATH}/fonts
 
 # docker-php-entrypoint configures db, env variable and LocalSettings.php
 COPY ./docker-php-entrypoint /usr/local/bin/docker-php-entrypoint
@@ -98,9 +103,6 @@ COPY ./LocalSettings.ext.php ${MEDIAWIKI_PATH}/LocalSettings.ext.php
 
 # apache configuration for mediawiki
 COPY ./wiki.conf /etc/apache2/sites-available/wiki.conf
-
-# Copy fonts
-COPY ./Lato-Regular.ttf /fonts/Lato/Lato-Regular.ttf
 
 # Disable default site
 RUN a2dissite 000-default
