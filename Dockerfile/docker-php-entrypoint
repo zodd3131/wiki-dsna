@@ -77,10 +77,11 @@ if [ ! -e "$MEDIAWIKI_SHARED/installed" -a ! -f "$MEDIAWIKI_SHARED/install.lock"
 	#sed -i 's//$wgRightsText = "copyright '$MEDIAWIKI_SITE_NAME'"/g' LocalSettings.php
 	#sed -i 's///g' LocalSettings.php
 	
-    #run update.php as extensions need to create tables
-    php maintenance/update.php --quick
+    
     rm $MEDIAWIKI_SHARED/install.lock
 fi
+#run update.php as extensions need to create tables
+php maintenance/update.php --quick
 
 # Add Local configuration to generated LocalSettings
 cat <<EOT >> /var/www/html/w/LocalSettings.php
